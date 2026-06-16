@@ -61,7 +61,11 @@ export default function BookingSheet({ isOpen, yacht, date, duration, onClose }:
 
   const fetchCrewUnavailability = async () => {
     try {
-      const dateStr = new Date(date).toISOString().split('T')[0]
+      const dateObj = new Date(date)
+      const year = dateObj.getFullYear()
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+      const day = String(dateObj.getDate()).padStart(2, '0')
+      const dateStr = `${year}-${month}-${day}`
       const { data, error } = await getCrewUnavailability(yacht.id, dateStr)
       if (error) throw error
       setCrewUnavailability(data || [])

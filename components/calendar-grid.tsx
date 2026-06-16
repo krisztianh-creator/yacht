@@ -26,8 +26,17 @@ export default function CalendarGrid({ onTimeSelect, selectedSlots, minimumBooki
       isBooked = bookings.some(booking => {
         const start = new Date(booking.start_date)
         const end = new Date(booking.end_date)
-        const bookingDate = start.toISOString().split('T')[0]
-        const selectedDate = new Date(date).toISOString().split('T')[0]
+        
+        const bookingYear = start.getFullYear()
+        const bookingMonth = String(start.getMonth() + 1).padStart(2, '0')
+        const bookingDay = String(start.getDate()).padStart(2, '0')
+        const bookingDate = `${bookingYear}-${bookingMonth}-${bookingDay}`
+        
+        const selectedDateObj = new Date(date)
+        const selectedYear = selectedDateObj.getFullYear()
+        const selectedMonth = String(selectedDateObj.getMonth() + 1).padStart(2, '0')
+        const selectedDay = String(selectedDateObj.getDate()).padStart(2, '0')
+        const selectedDate = `${selectedYear}-${selectedMonth}-${selectedDay}`
         
         // Check if booking is on the selected date
         if (bookingDate !== selectedDate) return false
