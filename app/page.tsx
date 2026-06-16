@@ -61,10 +61,10 @@ export default function Home() {
 
     // Set up real-time subscription for crew unavailability to refresh booking sheet
     const subscription = supabase
-      .channel('crew-unavailability-changes')
+      .channel('main-page-crew-unavailability')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'crew_unavailability' }, () => {
         // Force re-render to update booking sheet if it's open
-        setIsBookingSheetOpen(prev => prev)
+        setIsBookingSheetOpen(prev => !prev)
       })
       .subscribe()
 

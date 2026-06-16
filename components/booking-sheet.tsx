@@ -119,8 +119,8 @@ export default function BookingSheet({ isOpen, yacht, date, duration, onClose }:
       const dateStr = dateObj.toISOString().split('T')[0]
       const isCrewUnavailable = crewUnavailability.some(unavailable => {
         return unavailable.date === dateStr && 
-               selectedTime.start >= unavailable.start_hour && 
-               selectedTime.end <= unavailable.end_hour
+               selectedTime.start < unavailable.end_hour && 
+               selectedTime.end > unavailable.start_hour
       })
       
       if (isCrewUnavailable) {
