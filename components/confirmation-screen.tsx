@@ -97,7 +97,7 @@ export default function ConfirmationScreen({
             className="w-full flex items-center justify-center gap-2 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
           >
             <MessageCircle className="w-5 h-5" />
-            Share on WhatsApp
+            Send Details to Crew via WhatsApp
           </button>
           <button
             onClick={onClose}

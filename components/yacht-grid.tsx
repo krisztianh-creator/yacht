@@ -8,10 +8,13 @@ interface Yacht {
   name: string
   type: string
   image: string
+  images: string[]
   capacity: number
   hourlyRate: number
   rating: number
   reviews: number
+  minimumBookingHours: number
+  offers: string[]
 }
 
 interface YachtGridProps {
@@ -45,7 +48,17 @@ export default function YachtGrid({ yachts, filters, onBook }: YachtGridProps) {
         {filteredYachts.map((yacht) => (
           <YachtCard
             key={yacht.id}
-            {...yacht}
+            id={yacht.id}
+            name={yacht.name}
+            type={yacht.type}
+            image={yacht.image}
+            images={yacht.images}
+            capacity={yacht.capacity}
+            hourlyRate={yacht.hourlyRate}
+            rating={yacht.rating}
+            reviews={yacht.reviews}
+            minimumBookingHours={yacht.minimumBookingHours}
+            offers={yacht.offers}
             onBook={onBook}
             totalHours={filters.duration}
           />

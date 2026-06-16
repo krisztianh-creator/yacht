@@ -1,75 +1,49 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import FilterBar, { FilterState } from '@/components/filter-bar'
 import YachtGrid from '@/components/yacht-grid'
 import BookingSheet from '@/components/booking-sheet'
+import { getYachts, type Yacht as SupabaseYacht } from '@/lib/yachts'
+import { useAuth } from '@/lib/auth-context'
+import { supabase } from '@/lib/supabase'
 
-// Mock yacht data
-const mockYachts = [
-  {
-    id: '1',
-    name: 'Azure Dreams',
-    type: 'Luxury Yacht',
-    image: '/yacht-1.jpg',
-    capacity: 12,
-    hourlyRate: 450,
-    rating: 4.9,
-    reviews: 128,
-  },
-  {
-    id: '2',
-    name: 'Ocean Pearl',
-    type: 'Catamaran',
-    image: '/yacht-2.jpg',
-    capacity: 8,
-    hourlyRate: 320,
-    rating: 4.8,
-    reviews: 95,
-  },
-  {
-    id: '3',
-    name: 'Neptune Voyager',
-    type: 'Speedboat',
-    image: '/yacht-3.jpg',
-    capacity: 6,
-    hourlyRate: 280,
-    rating: 4.7,
-    reviews: 67,
-  },
-  {
-    id: '4',
-    name: 'Sunset Serenity',
-    type: 'Sailboat',
-    image: '/yacht-4.jpg',
-    capacity: 10,
-    hourlyRate: 380,
-    rating: 4.9,
-    reviews: 112,
-  },
-  {
-    id: '5',
-    name: 'Crystal Waters',
-    type: 'Luxury Yacht',
-    image: '/yacht-5.jpg',
-    capacity: 14,
-    hourlyRate: 550,
-    rating: 5.0,
-    reviews: 156,
-  },
-  {
-    id: '6',
-    name: 'Coastal Explorer',
-    type: 'Catamaran',
-    image: '/yacht-6.jpg',
-    capacity: 7,
-    hourlyRate: 300,
-    rating: 4.6,
-    reviews: 78,
-  },
-]
+interface Yacht {
+  id: string
+  name: string
+  type: string
+  image: string
+  images: string[]
+  capacity: number
+  hourlyRate: number
+  rating: number
+  reviews: number
+  minimumBookingHours: number
+  offers: string[]
+  location: string
+  features: string[]
+}
+
+const transformYacht = (yacht: SupabaseYacht): Yacht => ({
+  id: yacht.id,
+  name: yacht.name,
+  type: yacht.type,
+  image: yacht.image || '',
+  images: yacht.images || [],
+  capacity: yacht.capacity,
+  hourlyRate: yacht.hourly_rate,
+  rating: yacht.rating,
+  reviews: yacht.reviews,
+  minimumBookingHours: yacht.minimum_booking_hours,
+  offers: yacht.offers,
+  location: yacht.location,
+  features: yacht.features,
+})
 
 export default function Home() {
+  const router = useRouter()
+  const { user, isAdmin } = useAuth()
   const [filters, setFilters] = useState<FilterState>({
     location: 'Miami',
     boatType: 'All Boats',
@@ -79,8 +53,40 @@ export default function Home() {
   })
   const [selectedYachtId, setSelectedYachtId] = useState<string | null>(null)
   const [isBookingSheetOpen, setIsBookingSheetOpen] = useState(false)
+  const [yachts, setYachts] = useState<Yacht[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const selectedYacht = mockYachts.find((y) => y.id === selectedYachtId)
+  useEffect(() => {
+    fetchYachts()
+
+    // Set up real-time subscription for crew unavailability to refresh booking sheet
+    const subscription = supabase
+      .channel('crew-unavailability-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'crew_unavailability' }, () => {
+        // Force re-render to update booking sheet if it's open
+        setIsBookingSheetOpen(prev => prev)
+      })
+      .subscribe()
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [])
+
+  const fetchYachts = async () => {
+    setLoading(true)
+    try {
+      const { data, error } = await getYachts()
+      if (error) throw error
+      setYachts((data || []).map(transformYacht))
+    } catch (error) {
+      console.error('Failed to fetch yachts:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const selectedYacht = yachts.find((y) => y.id === selectedYachtId)
 
   const handleBook = (id: string) => {
     setSelectedYachtId(id)
@@ -97,6 +103,21 @@ export default function Home() {
               <h1 className="text-3xl font-bold text-primary">yacht.</h1>
               <p className="text-sm text-muted-foreground">Luxury yacht rentals worldwide</p>
             </div>
+            {user && isAdmin ? (
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="px-4 py-2 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-secondary transition-colors"
+              >
+                Dashboard
+              </button>
+            ) : (
+              <button
+                onClick={() => router.push('/login')}
+                className="px-4 py-2 border border-input text-foreground font-medium rounded-lg hover:bg-muted transition-colors"
+              >
+                Login
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -105,7 +126,7 @@ export default function Home() {
       <FilterBar onFilterChange={setFilters} />
 
       {/* Yacht Grid */}
-      <YachtGrid yachts={mockYachts} filters={filters} onBook={handleBook} />
+      <YachtGrid yachts={yachts} filters={filters} onBook={handleBook} />
 
       {/* Booking Sheet */}
       {selectedYacht && (
@@ -115,6 +136,7 @@ export default function Home() {
             id: selectedYacht.id,
             name: selectedYacht.name,
             hourlyRate: selectedYacht.hourlyRate,
+            minimumBookingHours: selectedYacht.minimumBookingHours,
           }}
           date={filters.date}
           duration={filters.duration}
