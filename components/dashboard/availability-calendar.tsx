@@ -215,7 +215,10 @@ export default function AvailabilityCalendar() {
   }
 
   const isDateCrewUnavailable = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0]
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const dateStr = `${year}-${month}-${day}`
     return crewUnavailability.some(unavailable => unavailable.date === dateStr)
   }
 
@@ -253,8 +256,11 @@ export default function AvailabilityCalendar() {
       const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day)
       const booked = isDateBooked(date)
       const crewUnavailable = isDateCrewUnavailable(date)
-      const isToday = date.toDateString() === new Date().toDateString()
-      const isPast = date < new Date()
+      const today = new Date()
+      const isToday = date.getDate() === today.getDate() && 
+                      date.getMonth() === today.getMonth() && 
+                      date.getFullYear() === today.getFullYear()
+      const isPast = date < new Date(today.getFullYear(), today.getMonth(), today.getDate())
 
       days.push(
         <button
