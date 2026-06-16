@@ -8,7 +8,7 @@ Create an admin dashboard for managing yachts (add, remove, edit) using Supabase
 - **Project ID**: ixfaxsfjbdxqirybwwtu
 - **Region**: eu-central-1
 - **Publishable Key**: sb_publishable_fKSUFSQvMTpYd6ZepSM1jQ_rVbyRpgT
-- **Anon Key**: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4ZmF4c2ZqYmR4cWlyeWJ3d3R1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMDk1MTIsImV4cCI6MjA5NjU4NTUxMn0.ZVIBqKTslZvSuHWIk0RxNcAe5DvOXISiZpkCQaHkxZQ
+- **Anon Key**: YOUR_SUPABASE_ANON_KEY
 
 ## Phase 1: Database Schema Setup
 
@@ -181,7 +181,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 Add to `.env.local`:
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://ixfaxsfjbdxqirybwwtu.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4ZmF4c2ZqYmR4cWlyeWJ3d3R1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMDk1MTIsImV4cCI6MjA5NjU4NTUxMn0.ZVIBqKTslZvSuHWIk0RxNcAe5DvOXISiZpkCQaHkxZQ
+NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
 ```
 
 ## Phase 3: Dashboard UI Components
